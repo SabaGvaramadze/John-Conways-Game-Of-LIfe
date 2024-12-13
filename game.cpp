@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstring>
 #include <time.h>
+#include <windows.h>
 
 using namespace std;
 
@@ -33,8 +34,20 @@ int neighbours_alive(bool *world,int pos,size_t WIDTH){
 	return res;
 }
 
-void draw_world(bool *world,size_t WIDTH,size_t HEIGHT){
+void clear_screen(){
+	HANDLE hout;
+	COORD pos;
+	hout = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	pos.X = 0;
+	pos.Y = 0;
+	SetConsoleCursorPosition(hout,pos);
+}
+string draw_world(bool *world,size_t WIDTH,size_t HEIGHT){
 	string output="";
+	for(int i=0;i<WIDTH-1;i++){
+		output+='_';
+	}
 	output+='\n';
 	for(int i=1;i<HEIGHT-1;i++){
 		output+='|';
@@ -47,7 +60,7 @@ void draw_world(bool *world,size_t WIDTH,size_t HEIGHT){
 	for(int i=0;i<WIDTH-1;i++){
 		output+='_';
 	}
-	cout <<output;
+	return output;
 }
 
 
@@ -63,15 +76,18 @@ int main(int argc,char **argv){
 	bool *worldMove = (bool*)malloc(WIDTH*HEIGHT);
 	memset(worldMove,0,WIDTH*HEIGHT);
 	srand(time(0));
-	system("cls");
+	clear_screen();
 	int randoms=WIDTH*HEIGHT/3;
+	string drawn_world;
 	while(randoms--){
 		world[(rand()%HEIGHT-1)*WIDTH + rand()%WIDTH-1] = 1;
-	} while(true){ 
-		system("cls");
-		draw_world(world,WIDTH,HEIGHT);
-		for(int i=1;i<HEIGHT-1;i++){
-			for(int j=1;j<WIDTH-1;j++){
+	} while(true){
+		Sleep(sleepTime);
+		drawn_world = draw_world(world,WIDTH,HEIGHT);
+		clear_screen();
+		cout << drawn_world << flush;
+		for(int i=1;i<HEIGHT-2;i++){
+			for(int j=1;j<WIDTH-2;j++){
 				int NA = neighbours_alive(world,i*WIDTH+j,WIDTH);
 				if(NA == 0){
 					worldMove[i*WIDTH+j] = 0;
